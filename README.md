@@ -2,7 +2,7 @@
 
 > An intelligent, multimodal environmental analysis platform powered by Google Gemini.
 
-![EarthLens AI Banner](https://earthlens-1006999380256.us-central1.run.app/icons/icon-512x512.png) 
+![EarthLens AI Banner](./icons/icon-512.png) 
 *Link to Live Demo: [EarthLens AI on Cloud Run](https://earthlens-1006999380256.us-central1.run.app)*
 
 ## 🚀 Overview
