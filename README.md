@@ -7,7 +7,7 @@
 
 ## 🚀 Overview
 
-EarthLens AI brings the complex world of climate science down to a personal, actionable level by leveraging the powerful multimodal capabilities of the **Google Gemini API** (Gemini 3.1 Pro & Gemini 3 Flash). Designed to act as a pocket environmental scientist, the application allows users to assess ecological health, track their personal footprint, and learn about sustainability effortlessly.
+EarthLens AI brings the complex world of climate science down to a personal, actionable level by leveraging the powerful multimodal capabilities of the **Google Gemini API** (Gemini 3 Flash). Designed to act as a pocket environmental scientist, the application allows users to assess ecological health, track their personal footprint, and learn about sustainability effortlessly.
 
 ## ✨ Key Features
 
@@ -21,7 +21,7 @@ EarthLens AI brings the complex world of climate science down to a personal, act
 
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3 (Custom Responsive Properties, CSS Grid, Glassmorphism UI)
 - **Backend:** Node.js, Express.js CORS Proxy
-- **AI Integration:** Google Gemini API (`gemini-3.1-pro`, `gemini-3-flash`) via the modern `@google/genai` SDK
+- **AI Integration:** Google Gemini API (`gemini-3-flash-preview`) via the native REST interface
 - **Deployment:** Containerized via Docker and deployed serverless on **Google Cloud Run**
 - **Libraries:** html2pdf.js (Client-side report exports)
 
