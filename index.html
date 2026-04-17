@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EarthLens AI — See the Planet Through the Lens of AI</title>
+  <meta name="description" content="EarthLens AI uses Google Gemini's multimodal intelligence to analyze environmental photos, calculate your carbon footprint, and chat about our planet's future." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#22c55e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="EarthLens" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+  <!-- ============= PARTICLES BACKGROUND ============= -->
+  <div id="particles-bg" class="particles-bg"></div>
+
+  <!-- ============= NAV ============= -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <a href="#hero" class="nav-logo" style="text-decoration: none;">
+          <svg class="animated-logo" width="32" height="32" viewBox="0 0 100 100" fill="none">
+            <defs>
+              <radialGradient id="navOcean" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stop-color="#0ea5e9" />
+                <stop offset="100%" stop-color="#0284c7" />
+              </radialGradient>
+              <clipPath id="navGlobeClip"><circle cx="50" cy="50" r="48" /></clipPath>
+              <radialGradient id="navGlobeShadow" cx="30%" cy="30%" r="70%">
+                <stop offset="60%" stop-color="transparent" />
+                <stop offset="100%" stop-color="rgba(0,0,0,0.5)" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#navOcean)" />
+            <g clip-path="url(#navGlobeClip)">
+              <g class="map-layer">
+                <g fill="#22c55e" opacity="0.85">
+                  <path d="M 20,30 Q 30,20 40,30 T 50,40 Q 40,50 30,45 Z" />
+                  <path d="M 60,60 Q 75,50 80,70 T 60,80 Z" />
+                  <path d="M 85,25 Q 95,15 105,30 Q 95,45 85,25 Z" />
+                  <path d="M 120,30 Q 130,20 140,30 T 150,40 Q 140,50 130,45 Z" />
+                  <path d="M 160,60 Q 175,50 180,70 T 160,80 Z" />
+                  <path d="M 185,25 Q 195,15 205,30 Q 195,45 185,25 Z" />
+                </g>
+                <g fill="#ffffff" opacity="0.65">
+                  <circle cx="45" cy="25" r="5" /><circle cx="52" cy="27" r="7" /><circle cx="40" cy="28" r="4" />
+                  <circle cx="75" cy="45" r="4" /><circle cx="82" cy="48" r="6" />
+                  <circle cx="20" cy="70" r="5" /><circle cx="28" cy="72" r="8" />
+                  <circle cx="145" cy="25" r="5" /><circle cx="152" cy="27" r="7" /><circle cx="140" cy="28" r="4" />
+                  <circle cx="175" cy="45" r="4" /><circle cx="182" cy="48" r="6" />
+                  <circle cx="120" cy="70" r="5" /><circle cx="128" cy="72" r="8" />
+                </g>
+              </g>
+            </g>
+            <circle cx="50" cy="50" r="48" fill="url(#navGlobeShadow)" />
+          </svg>
+          <span>EarthLens <span class="brand-ai">AI</span></span>
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="#ecovision" class="nav-link" id="nav-ecovision">EcoVision</a>
+        <a href="#ecochat" class="nav-link" id="nav-ecochat">EcoChat</a>
+        <a href="#carbon" class="nav-link" id="nav-carbon">Carbon Compass</a>
+        <a href="#earthpulse" class="nav-link" id="nav-earthpulse">Earth Pulse</a>
+        <a href="#faq" class="nav-link" id="nav-faq">FAQ</a>
+      </div>
+      <button class="btn-install" id="installPwaBtn" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Install App
+      </button>
+    </div>
+  </nav>
+
+
+  <!-- ============= HERO ============= -->
+  <section class="hero" id="hero">
+    <canvas id="globe-canvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Happy Earth Day 2026 🌍</span>
+      </div>
+      <h1 class="hero-title">
+        See the Planet<br/>
+        <span class="gradient-text">Through the Lens of AI</span>
+      </h1>
+      <p class="hero-subtitle">
+        Upload any image. Ask anything. Calculate your impact.<br/>
+        EarthLens uses Google Gemini to help you understand, protect, and celebrate our planet.
+      </p>
+      <div class="hero-cta">
+        <a href="#ecovision" class="btn-hero-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Analyze an Image
+        </a>
+        <a href="#ecochat" class="btn-hero-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Talk to EcoChat
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num" id="stat-analyses">0</span>
+          <span class="stat-label">Analyses Run</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">422</span>
+          <span class="stat-label">PPM CO₂ Today</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">+1.2°C</span>
+          <span class="stat-label">Above Pre-industrial</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-indicator">
+        <span>Scroll to explore</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= ECOVISION ============= -->
+  <section class="section" id="ecovision">
+    <div class="section-header">
+      <div class="section-tag">🔭 Powered by Gemini Vision</div>
+      <h2 class="section-title">EcoVision</h2>
+      <p class="section-subtitle">Upload any photo — nature, city, product, food — and get an instant AI-powered environmental intelligence report.</p>
+    </div>
+
+    <div class="ecovision-layout">
+      <!-- Upload Zone -->
+      <div class="upload-panel">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-actions">
+            <!-- Big left box: Use Camera -->
+            <button class="btn-giant action-camera" id="openCameraBtn">
+              <div class="action-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </div>
+              <span class="action-title">Live Camera</span>
+              <span class="action-sub">Point at environment</span>
+            </button>
+
+            <!-- Big right box: Upload File -->
+            <div class="btn-giant action-upload" id="triggerFileBtn">
+              <div class="action-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <span class="action-title">Upload Image</span>
+              <span class="action-sub">Click or drag & drop</span>
+            </div>
+          </div>
+
+          <div class="upload-text" style="margin-bottom: 15px;">
+            <p class="upload-secondary">Drop an image here or use the buttons above.</p>
+          </div>
+
+          <div class="upload-examples">
+            <span>Or try examples:</span>
+            <button class="example-chip" data-example="forest">🌲 Forest</button>
+            <button class="example-chip" data-example="ocean">🌊 Ocean</button>
+            <button class="example-chip" data-example="city">🏙️ City</button>
+            <button class="example-chip" data-example="factory">🏭 Factory</button>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" style="display:none"/>
+        </div>
+        <div class="image-preview-container" id="imagePreviewContainer" style="display:none">
+          <img id="imagePreview" class="image-preview" alt="Uploaded image for analysis" />
+          <button class="change-image-btn" id="changeImageBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Change Image
+          </button>
+        </div>
+        <button class="btn-analyze" id="analyzeBtn" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span id="analyzeBtnText">Analyze with Gemini</span>
+        </button>
+        <div class="analysis-mode-row">
+          <span class="mode-label">Analysis Mode:</span>
+          <div class="mode-chips">
+            <button class="mode-chip active" data-mode="eco">🌿 Environmental</button>
+            <button class="mode-chip" data-mode="bio">🦋 Biodiversity</button>
+            <button class="mode-chip" data-mode="carbon">♻️ Sustainability</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel" id="resultsPanel">
+        <div class="results-placeholder" id="resultsPlaceholder">
+          <div class="placeholder-icon">🌱</div>
+          <p>Your environmental intelligence report will appear here after analysis</p>
+          <div class="powered-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="url(#gemini-grad)" stroke-width="2"/><defs><linearGradient id="gemini-grad" x1="0" y1="0" x2="24" y2="24"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs></svg>
+            Powered by Google Gemini
+          </div>
+        </div>
+        <div class="results-content" id="resultsContent" style="display:none">
+          <!-- Score Ring -->
+          <div class="score-section">
+            <div class="score-ring-container">
+              <svg class="score-ring" viewBox="0 0 120 120" id="scoreRingSvg">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle class="ring-progress" cx="60" cy="60" r="50" id="ringProgress" />
+              </svg>
+              <div class="score-center">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-label">Eco Score</div>
+              </div>
+            </div>
+            <div class="score-meta">
+              <div class="score-grade" id="scoreGrade">—</div>
+              <div class="score-description" id="scoreDescription">—</div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="result-card">
+            <div class="result-card-header">
+              <span>📋</span> <span>Summary</span>
+            </div>
+            <div class="result-card-body" id="resultSummary">—</div>
+          </div>
+
+          <!-- Key Findings -->
+          <div class="result-card">
+            <div class="result-card-header">
+              <span>🔍</span> <span>Key Findings</span>
+            </div>
+            <ul class="findings-list" id="findingsList"></ul>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="result-card">
+            <div class="result-card-header">
+              <span>💡</span> <span>Recommended Actions</span>
+            </div>
+            <ul class="actions-list" id="actionsList"></ul>
+          </div>
+
+          <!-- Detected Elements -->
+          <div class="tags-section">
+            <div class="tags-label">Detected Elements</div>
+            <div class="tags-container" id="tagsList"></div>
+          </div>
+
+          <div class="result-actions" style="display:flex;gap:10px;margin-top:10px;">
+            <button class="btn-share" id="shareResultBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share Report
+            </button>
+            <button class="btn-share" id="downloadPdfBtn" style="border-color:rgba(34,197,94,0.3);color:var(--col-green);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Save PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="results-loading" id="resultsLoading" style="display:none">
+          <div class="gemini-loader">
+            <div class="gemini-orb"></div>
+            <div class="gemini-ring ring-1"></div>
+            <div class="gemini-ring ring-2"></div>
+            <div class="gemini-ring ring-3"></div>
+          </div>
+          <p class="loading-text">Gemini is analyzing the environment...</p>
+          <div class="loading-steps" id="loadingSteps">
+            <div class="loading-step active" id="step1">🔍 Scanning image contents</div>
+            <div class="loading-step" id="step2">🌿 Assessing ecological impact</div>
+            <div class="loading-step" id="step3">♻️ Generating recommendations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= ECOCHAT ============= -->
+  <section class="section section-dark" id="ecochat">
+    <div class="section-header">
+      <div class="section-tag">💬 Gemini-Powered Conversation</div>
+      <h2 class="section-title">EcoChat</h2>
+      <p class="section-subtitle">Your AI companion for all things Earth. Ask about climate science, biodiversity, sustainability, or what you personally can do.</p>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-window" id="chatWindow">
+        <div class="chat-welcome">
+          <div class="chat-welcome-icon">🌍</div>
+          <div class="chat-welcome-text">
+            <strong>EcoChat is ready</strong>
+            <span>Ask me anything about our planet — climate, biodiversity, sustainability, or how to take action.</span>
+          </div>
+        </div>
+        <!-- Messages will appear here -->
+      </div>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="suggestion-chip" data-msg="What are the biggest drivers of climate change right now?">What are the biggest drivers of climate change?</button>
+        <button class="suggestion-chip" data-msg="Give me 5 practical ways I can reduce my carbon footprint today.">5 ways to reduce my carbon footprint</button>
+        <button class="suggestion-chip" data-msg="Explain ocean acidification and why it matters for marine biodiversity.">Ocean acidification explained</button>
+        <button class="suggestion-chip" data-msg="What is rewilding and why is it important for ecosystems?">What is rewilding?</button>
+        <button class="suggestion-chip" data-msg="How does deforestation affect global weather patterns?">Deforestation & weather patterns</button>
+        <button class="suggestion-chip" data-msg="What renewable energy source has the biggest potential to replace fossil fuels?">Best renewable energy source?</button>
+      </div>
+      <div class="chat-input-row">
+        <div class="chat-input-wrapper">
+          <textarea id="chatInput" class="chat-input" placeholder="Ask EcoChat anything about Earth..." rows="1"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= CARBON COMPASS ============= -->
+  <section class="section" id="carbon">
+    <div class="section-header">
+      <div class="section-tag">📊 AI-Powered Analysis</div>
+      <h2 class="section-title">Carbon Compass</h2>
+      <p class="section-subtitle">Answer a few questions about your lifestyle and get a personalized carbon footprint analysis with a Gemini-generated action plan.</p>
+    </div>
+
+    <div class="carbon-layout">
+      <!-- Questionnaire -->
+      <div class="carbon-form" id="carbonForm">
+        <div class="carbon-step" id="carbonStep" data-step="0">
+          <div class="step-indicator">
+            <div class="step-dot active" data-step-dot="0"></div>
+            <div class="step-dot" data-step-dot="1"></div>
+            <div class="step-dot" data-step-dot="2"></div>
+            <div class="step-dot" data-step-dot="3"></div>
+          </div>
+
+          <!-- Step 0: Transport -->
+          <div class="step-content active" id="step-0">
+            <div class="step-icon">🚗</div>
+            <h3 class="step-question">How do you primarily get around?</h3>
+            <div class="option-grid">
+              <label class="option-card" id="opt-transport-walk">
+                <input type="radio" name="transport" value="walk" />
+                <span class="option-emoji">🚶</span>
+                <span class="option-text">Walk / Bike</span>
+              </label>
+              <label class="option-card" id="opt-transport-transit">
+                <input type="radio" name="transport" value="transit" />
+                <span class="option-emoji">🚌</span>
+                <span class="option-text">Public Transit</span>
+              </label>
+              <label class="option-card" id="opt-transport-ev">
+                <input type="radio" name="transport" value="ev" />
+                <span class="option-emoji">⚡</span>
+                <span class="option-text">Electric Car</span>
+              </label>
+              <label class="option-card" id="opt-transport-car">
+                <input type="radio" name="transport" value="car" />
+                <span class="option-emoji">🚘</span>
+                <span class="option-text">Gas Car</span>
+              </label>
+              <label class="option-card" id="opt-transport-fly">
+                <input type="radio" name="transport" value="fly" />
+                <span class="option-emoji">✈️</span>
+                <span class="option-text">Frequent Flyer</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 1: Diet -->
+          <div class="step-content" id="step-1">
+            <div class="step-icon">🍽️</div>
+            <h3 class="step-question">What best describes your diet?</h3>
+            <div class="option-grid">
+              <label class="option-card" id="opt-diet-vegan">
+                <input type="radio" name="diet" value="vegan" />
+                <span class="option-emoji">🥗</span>
+                <span class="option-text">Vegan</span>
+              </label>
+              <label class="option-card" id="opt-diet-veggie">
+                <input type="radio" name="diet" value="vegetarian" />
+                <span class="option-emoji">🥦</span>
+                <span class="option-text">Vegetarian</span>
+              </label>
+              <label class="option-card" id="opt-diet-flexitarian">
+                <input type="radio" name="diet" value="flexitarian" />
+                <span class="option-emoji">🐟</span>
+                <span class="option-text">Flexitarian</span>
+              </label>
+              <label class="option-card" id="opt-diet-omnivore">
+                <input type="radio" name="diet" value="omnivore" />
+                <span class="option-emoji">🥩</span>
+                <span class="option-text">Omnivore</span>
+              </label>
+              <label class="option-card" id="opt-diet-heavy">
+                <input type="radio" name="diet" value="heavy_meat" />
+                <span class="option-emoji">🍖</span>
+                <span class="option-text">Heavy Meat</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 2: Energy -->
+          <div class="step-content" id="step-2">
+            <div class="step-icon">⚡</div>
+            <h3 class="step-question">How is your home powered?</h3>
+            <div class="option-grid">
+              <label class="option-card" id="opt-energy-solar">
+                <input type="radio" name="energy" value="solar" />
+                <span class="option-emoji">☀️</span>
+                <span class="option-text">Solar / Renewable</span>
+              </label>
+              <label class="option-card" id="opt-energy-green">
+                <input type="radio" name="energy" value="green_grid" />
+                <span class="option-emoji">💚</span>
+                <span class="option-text">Green Grid</span>
+              </label>
+              <label class="option-card" id="opt-energy-mixed">
+                <input type="radio" name="energy" value="mixed" />
+                <span class="option-emoji">🔌</span>
+                <span class="option-text">Mixed Grid</span>
+              </label>
+              <label class="option-card" id="opt-energy-fossil">
+                <input type="radio" name="energy" value="fossil" />
+                <span class="option-emoji">🏭</span>
+                <span class="option-text">Mainly Fossil Fuels</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 3: Shopping -->
+          <div class="step-content" id="step-3">
+            <div class="step-icon">🛍️</div>
+            <h3 class="step-question">How do you approach shopping?</h3>
+            <div class="option-grid">
+              <label class="option-card" id="opt-shop-minimal">
+                <input type="radio" name="shopping" value="minimal" />
+                <span class="option-emoji">🎯</span>
+                <span class="option-text">Buy Only Needs</span>
+              </label>
+              <label class="option-card" id="opt-shop-secondhand">
+                <input type="radio" name="shopping" value="secondhand" />
+                <span class="option-emoji">♻️</span>
+                <span class="option-text">Mostly Secondhand</span>
+              </label>
+              <label class="option-card" id="opt-shop-moderate">
+                <input type="radio" name="shopping" value="moderate" />
+                <span class="option-emoji">🛒</span>
+                <span class="option-text">Moderate Consumer</span>
+              </label>
+              <label class="option-card" id="opt-shop-fast">
+                <input type="radio" name="shopping" value="fast_fashion" />
+                <span class="option-emoji">👗</span>
+                <span class="option-text">Fast Fashion Fan</span>
+              </label>
+              <label class="option-card" id="opt-shop-heavy">
+                <input type="radio" name="shopping" value="heavy" />
+                <span class="option-emoji">📦</span>
+                <span class="option-text">Heavy Consumer</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-prev" id="prevStepBtn" disabled>← Back</button>
+            <button class="btn-next" id="nextStepBtn">Next →</button>
+            <button class="btn-calculate" id="calculateBtn" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Calculate with Gemini
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carbon Results -->
+      <div class="carbon-results" id="carbonResults" style="display:none">
+        <div class="carbon-loading" id="carbonLoading">
+          <div class="gemini-loader">
+            <div class="gemini-orb"></div>
+            <div class="gemini-ring ring-1"></div>
+            <div class="gemini-ring ring-2"></div>
+          </div>
+          <p>Gemini is calculating your carbon footprint...</p>
+        </div>
+        <div class="carbon-report" id="carbonReport" style="display:none">
+          <div class="carbon-score-header">
+            <div class="carbon-total">
+              <span class="carbon-number" id="carbonTonnes">—</span>
+              <span class="carbon-unit">tonnes CO₂e / year</span>
+            </div>
+            <div class="carbon-comparison" id="carbonComparison">—</div>
+          </div>
+          <div class="carbon-bars">
+            <div class="carbon-bar-item">
+              <span class="bar-label">🚗 Transport</span>
+              <div class="bar-track"><div class="bar-fill transport-bar" id="transportBar"></div></div>
+              <span class="bar-val" id="transportVal">—</span>
+            </div>
+            <div class="carbon-bar-item">
+              <span class="bar-label">🍽️ Diet</span>
+              <div class="bar-track"><div class="bar-fill diet-bar" id="dietBar"></div></div>
+              <span class="bar-val" id="dietVal">—</span>
+            </div>
+            <div class="carbon-bar-item">
+              <span class="bar-label">⚡ Energy</span>
+              <div class="bar-track"><div class="bar-fill energy-bar" id="energyBar"></div></div>
+              <span class="bar-val" id="energyVal">—</span>
+            </div>
+            <div class="carbon-bar-item">
+              <span class="bar-label">🛍️ Shopping</span>
+              <div class="bar-track"><div class="bar-fill shopping-bar" id="shoppingBar"></div></div>
+              <span class="bar-val" id="shoppingVal">—</span>
+            </div>
+          </div>
+          <div class="carbon-action-plan">
+            <h4>🤖 Gemini's Personal Action Plan</h4>
+            <div class="action-plan-content" id="actionPlanContent">—</div>
+          </div>
+          <button class="btn-recalculate" id="recalculateBtn">Recalculate</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= EARTH PULSE ============= -->
+  <section class="section section-dark" id="earthpulse">
+    <div class="section-header">
+      <div class="section-tag">🌐 Live Planet Data</div>
+      <h2 class="section-title">Earth Pulse</h2>
+      <p class="section-subtitle">Real-time indicators of our planet's health, narrated by Gemini AI.</p>
+    </div>
+
+    <div class="pulse-grid">
+      <div class="pulse-card" id="pulse-co2">
+        <div class="pulse-icon">🌫️</div>
+        <div class="pulse-value">422 <span class="pulse-unit">ppm</span></div>
+        <div class="pulse-label">Atmospheric CO₂</div>
+        <div class="pulse-trend up">▲ 2.4 ppm vs last year</div>
+      </div>
+      <div class="pulse-card" id="pulse-temp">
+        <div class="pulse-icon">🌡️</div>
+        <div class="pulse-value">+1.2 <span class="pulse-unit">°C</span></div>
+        <div class="pulse-label">Global Temp Anomaly</div>
+        <div class="pulse-trend up">▲ Above 1850–1900 baseline</div>
+      </div>
+      <div class="pulse-card" id="pulse-ice">
+        <div class="pulse-icon">🧊</div>
+        <div class="pulse-value">–13% <span class="pulse-unit"></span></div>
+        <div class="pulse-label">Arctic Sea Ice</div>
+        <div class="pulse-trend down">▼ Vs 1981–2010 average</div>
+      </div>
+      <div class="pulse-card" id="pulse-deforest">
+        <div class="pulse-icon">🌳</div>
+        <div class="pulse-value">4.7M <span class="pulse-unit">ha/yr</span></div>
+        <div class="pulse-label">Forest Lost Annually</div>
+        <div class="pulse-trend up">▲ Irreplaceable ecosystems</div>
+      </div>
+      <div class="pulse-card" id="pulse-ocean">
+        <div class="pulse-icon">🌊</div>
+        <div class="pulse-value">+3.7 <span class="pulse-unit">mm/yr</span></div>
+        <div class="pulse-label">Sea Level Rise Rate</div>
+        <div class="pulse-trend up">▲ Accelerating since 1993</div>
+      </div>
+      <div class="pulse-card" id="pulse-species">
+        <div class="pulse-icon">🦏</div>
+        <div class="pulse-value">1M+ <span class="pulse-unit"></span></div>
+        <div class="pulse-label">Species Threatened</div>
+        <div class="pulse-trend up">▲ Per IPBES 2024 assessment</div>
+      </div>
+    </div>
+
+    <!-- Gemini Narration -->
+    <div class="pulse-narration">
+      <div class="narration-header">
+        <div class="narration-icon">🤖</div>
+        <span>Gemini's Earth Day Reflection</span>
+        <button class="btn-narrate" id="narrateBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Generate Insight
+        </button>
+      </div>
+      <div class="narration-body" id="narrationBody">
+        <span class="narration-placeholder">Click "Generate Insight" to have Gemini analyze these environmental indicators and share a reflection on what they mean for our planet.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= FAQ SECTION ============= -->
+  <section class="faq" id="faq">
+    <div class="section-header">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about using EarthLens AI</p>
+    </div>
+    <div class="faq-accordion">
+      <div class="faq-item">
+        <button class="faq-question">What does EarthLens AI do?</button>
+        <div class="faq-answer">
+          <p>EarthLens AI is a comprehensive environmental intelligence platform. It uses Google Gemini 3.1 Pro and Gemini 3 Flash to analyze photos of environments, ecosystems, and urban areas (EcoVision), chat with you about climate and sustainability (EcoChat), evaluate your personal carbon impact (Carbon Compass), and summarize global environmental indicators (Earth Pulse).</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">What are the different Analysis Modes?</button>
+        <div class="faq-answer">
+          <p>EarthLens AI provides three tailored perspectives for analyzing an image:</p>
+          <ul>
+            <li><strong>🌿 Environmental:</strong> Analyzes overall environmental health, pollution levels, and gives a general "Eco Score".</li>
+            <li><strong>🦋 Biodiversity:</strong> Focuses on identifying species richness, habitat quality, and threats to the local ecosystem.</li>
+            <li><strong>♻️ Sustainability:</strong> Evaluates carbon footprint lifecycle, materials (like plastics), and sustainable practices visible in the image.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">How do I use the live camera feed?</button>
+        <div class="faq-answer">
+          <p>Navigate to the <strong>EcoVision</strong> section and click the "📷 Use Camera" button. Allow the app permission to access your device's camera. By default, it will open your rear-facing camera. Point your phone at a subject (like a river, forest, or waste site) and tap the large circular snap button to capture an image. Finally, select your analysis mode (Eco Score, Biodiversity, or Carbon) and click "Analyze with Gemini"!</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">How do I upload images from my device?</button>
+        <div class="faq-answer">
+          <p>In the <strong>EcoVision</strong> section, you can simply click or tap anywhere inside the dashed "Upload Zone" area to select a file from your computer or phone. On desktop, you can also drag and drop an image directly into the box. We also provide a few example images (Forest, Ocean, City, Factory) that you can try with one click.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">Is my Data and API Key secure?</button>
+        <div class="faq-answer">
+          <p>EarthLens AI operates as a secure proxy. Normal users do not need an API key to use the app — we handle the Gemini connection securely on our backend. No personal data or uploaded images are permanently stored on our servers; they are processed ephemerally for analysis.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= FOOTER ============= -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <svg class="animated-logo" width="28" height="28" viewBox="0 0 100 100" fill="none">
+            <defs>
+              <radialGradient id="footerOcean" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stop-color="#0ea5e9" />
+                <stop offset="100%" stop-color="#0284c7" />
+              </radialGradient>
+              <clipPath id="footerGlobeClip"><circle cx="50" cy="50" r="48" /></clipPath>
+              <radialGradient id="footerGlobeShadow" cx="30%" cy="30%" r="70%">
+                <stop offset="60%" stop-color="transparent" />
+                <stop offset="100%" stop-color="rgba(0,0,0,0.5)" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#footerOcean)" />
+            <g clip-path="url(#footerGlobeClip)">
+              <g class="map-layer">
+                <g fill="#22c55e" opacity="0.85">
+                  <path d="M 20,30 Q 30,20 40,30 T 50,40 Q 40,50 30,45 Z" />
+                  <path d="M 60,60 Q 75,50 80,70 T 60,80 Z" />
+                  <path d="M 85,25 Q 95,15 105,30 Q 95,45 85,25 Z" />
+                  <path d="M 120,30 Q 130,20 140,30 T 150,40 Q 140,50 130,45 Z" />
+                  <path d="M 160,60 Q 175,50 180,70 T 160,80 Z" />
+                  <path d="M 185,25 Q 195,15 205,30 Q 195,45 185,25 Z" />
+                </g>
+                <g fill="#ffffff" opacity="0.65">
+                  <circle cx="45" cy="25" r="5" /><circle cx="52" cy="27" r="7" /><circle cx="40" cy="28" r="4" />
+                  <circle cx="75" cy="45" r="4" /><circle cx="82" cy="48" r="6" />
+                  <circle cx="20" cy="70" r="5" /><circle cx="28" cy="72" r="8" />
+                  <circle cx="145" cy="25" r="5" /><circle cx="152" cy="27" r="7" /><circle cx="140" cy="28" r="4" />
+                  <circle cx="175" cy="45" r="4" /><circle cx="182" cy="48" r="6" />
+                  <circle cx="120" cy="70" r="5" /><circle cx="128" cy="72" r="8" />
+                </g>
+              </g>
+            </g>
+            <circle cx="50" cy="50" r="48" fill="url(#footerGlobeShadow)" />
+          </svg>
+          <span>EarthLens AI</span>
+        </div>
+        <p>Built with 💚 for Earth Day 2026</p>
+        <p class="footer-tech">Powered by <strong>Google Gemini</strong> · DEV Weekend Challenge Submission</p>
+      </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ============= CAMERA MODAL ============= -->
+  <div class="camera-modal" id="cameraModal" role="dialog" aria-label="Camera">
+    <div class="camera-modal-inner">
+      <div class="camera-header">
+        <div class="camera-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Live Camera
+        </div>
+        <div class="camera-header-actions">
+          <button class="camera-flip-btn" id="cameraFlipBtn" title="Flip camera">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+          </button>
+          <button class="camera-close-btn" id="cameraCloseBtn" title="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-viewport">
+        <video id="cameraFeed" autoplay playsinline muted></video>
+        <div class="camera-guide-ring"></div>
+      </div>
+      <canvas id="cameraCanvas" style="display:none"></canvas>
+
+      <div class="camera-footer">
+        <p class="camera-hint">Point at a river, forest, waste site, or any environment</p>
+        <button class="camera-snap-btn" id="cameraSnapBtn" aria-label="Take photo">
+          <div class="snap-outer-ring"></div>
+          <div class="snap-inner-circle"></div>
+        </button>
+        <p class="camera-hint">Tap to capture</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="js/gemini.js"></script>
+  <script src="js/globe.js"></script>
+  <script src="js/ecovision.js"></script>
+  <script src="js/ecochat.js"></script>
+  <script src="js/carbon.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

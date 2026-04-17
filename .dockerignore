@@ -1,0 +1,25 @@
+# ---- Build stage excludes ----
+node_modules/
+npm-debug.log*
+.npm
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Version control ----
+.git
+.gitignore
+.gitattributes
+
+# ---- Dev tools ----
+*.log
+.DS_Store
+Thumbs.db
+
+# ---- Editor ----
+.vscode/
+.idea/
+*.swp
+*.swo
