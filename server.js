@@ -234,5 +234,5 @@ app.get('*', (req, res) => {
 /* ---- Start ---- */
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌍 EarthLens AI is running on port ${PORT}`);
-  console.log(`🔑 Gemini API key loaded: ${GEMINI_KEY.slice(0, 8)}...`);
+  console.log(`🔑 Gemini API key: loaded ✅`);
 });
