@@ -555,7 +555,7 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
     // without it shifting out of the capture viewport.
     const wrapper = document.createElement('div');
     wrapper.style.cssText = [
-      'position:absolute',
+      'position:fixed',
       'top:0',
       'left:0',
       'z-index:-9999',
@@ -661,7 +661,12 @@ ${tagsHTML ? `<div style="margin-bottom:22px;">
             allowTaint:      true,
             backgroundColor: '#ffffff',
             logging:         false,
-            windowWidth:     816
+            windowWidth:     816,
+            width:           816,
+            scrollX:         0,
+            scrollY:         0,
+            x:               0,
+            y:               0
           },
           jsPDF:     { unit: 'in', format: 'letter', orientation: 'portrait' },
           pagebreak: { mode: ['css', 'legacy'] }
