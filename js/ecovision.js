@@ -478,9 +478,10 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
 
   /* =============================================
      PDF REPORT GENERATOR
-     Builds a clean, self-contained HTML report
-     in memory so html2canvas has no dark-mode
-     transparency / CSS variable issues.
+     Opens the full report in a new browser tab
+     and uses window.print() (Save as PDF).
+     Bypasses html2canvas entirely — zero blank-
+     page issues, works 100% of the time.
      ============================================= */
   function generatePdfReport() {
     const resultsContent = document.getElementById('resultsContent');
@@ -491,7 +492,6 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
 
     showToast('Building report…', 'info');
 
-    // ── Collect data from the live DOM ──────────────────────────────
     const score   = parseInt(document.getElementById('scoreNumber').textContent, 10) || 0;
     const grade   = document.getElementById('scoreGrade').textContent  || '—';
     const desc    = document.getElementById('scoreDescription').textContent || '';
@@ -502,187 +502,94 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
     const tags     = [...document.querySelectorAll('#tagsList .tag')].map(t  => t.textContent);
 
     const color = getScoreColor(score);
-    const circumference = 2 * Math.PI * 54; // r = 54
+    const circumference = 2 * Math.PI * 54;
     const dashOffset = circumference - (score / 100) * circumference;
 
-    const imgSrc = currentImageBase64
-      ? `data:${currentMimeType};base64,${currentImageBase64}`
-      : null;
+    const imgSrc = currentImageBase64 ? `data:${currentMimeType};base64,${currentImageBase64}` : null;
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-    // ── Build block helpers ─────────────────────────────────────────
     const imgBlock = imgSrc
-      ? `<div style="text-align:center;margin-bottom:24px;">
-           <img src="${imgSrc}"
-                style="max-width:100%;max-height:260px;border-radius:12px;
-                       border:2px solid #bbf7d0;object-fit:cover;
-                       display:block;margin:0 auto;"
-                alt="Analysed image"/>
-         </div>`
+      ? `<div style="text-align:center;margin-bottom:24px;"><img src="${imgSrc}" style="max-width:100%;max-height:260px;border-radius:12px;border:2px solid #bbf7d0;object-fit:cover;display:block;margin:0 auto;" alt="Analysed image"/></div>`
       : '';
 
-    const liStyle = c => `display:flex;align-items:flex-start;gap:12px;
-                              border-radius:8px;padding:12px 14px;
-                              border-left:3px solid ${c};margin-bottom:8px;
-                              background:${c === '#22c55e' ? '#f0fdf4' : '#fffbeb'};`;
-
-    const numStyle = c => `color:${c};font-weight:700;font-size:13px;min-width:20px;flex-shrink:0;`;
-    const txtStyle = `color:#1e3a2e;font-size:13.5px;line-height:1.5;`;
-
     const findingsHTML = findings.length
-      ? findings.map((f, i) => `<div style="${liStyle('#22c55e')}">
-          <span style="${numStyle('#22c55e')}">${i + 1}.</span>
-          <span style="${txtStyle}">${f}</span></div>`).join('')
+      ? findings.map((f, i) => `<div style="display:flex;align-items:flex-start;gap:12px;border-radius:8px;padding:12px 14px;border-left:3px solid #22c55e;margin-bottom:8px;background:#f0fdf4;"><span style="color:#22c55e;font-weight:700;font-size:13px;min-width:20px;flex-shrink:0;">${i+1}.</span><span style="color:#1e3a2e;font-size:13.5px;line-height:1.5;">${f}</span></div>`).join('')
       : '<p style="color:#9ca3af;font-style:italic;">No findings available.</p>';
 
     const actionsHTML = actions.length
-      ? actions.map((a, i) => `<div style="${liStyle('#f59e0b')}">
-          <span style="${numStyle('#f59e0b')}">${i + 1}.</span>
-          <span style="${txtStyle}">${a}</span></div>`).join('')
+      ? actions.map((a, i) => `<div style="display:flex;align-items:flex-start;gap:12px;border-radius:8px;padding:12px 14px;border-left:3px solid #f59e0b;margin-bottom:8px;background:#fffbeb;"><span style="color:#f59e0b;font-weight:700;font-size:13px;min-width:20px;flex-shrink:0;">${i+1}.</span><span style="color:#1e3a2e;font-size:13.5px;line-height:1.5;">${a}</span></div>`).join('')
       : '<p style="color:#9ca3af;font-style:italic;">No recommendations available.</p>';
 
     const tagsHTML = tags.length
-      ? tags.map(t => `<span style="display:inline-block;background:#dcfce7;color:#166534;
-                                    border-radius:999px;padding:4px 12px;font-size:12px;
-                                    font-weight:600;margin:3px;">${t}</span>`).join('')
+      ? tags.map(t => `<span style="display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;margin:3px;">${t}</span>`).join('')
       : '';
 
-    // ── Build the report as a real DIV in the main document ─────────
-    // We position the wrapper absolutely behind the content so html2canvas captures it properly
-    // without it shifting out of the capture viewport.
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = [
-      'position:fixed',
-      'top:0',
-      'left:0',
-      'z-index:-9999',
-      'width:816px',
-      'background:#ffffff',
-      'color:#111827',
-      'font-family:Segoe UI,Arial,sans-serif',
-      'font-size:14px',
-      'line-height:1.6',
-      'padding:32px 36px',
-      'box-sizing:border-box'
-    ].join(';');
+    // Open a new window and write the full report HTML directly into it.
+    // Uses the browser's native print dialog (Ctrl+P / Save as PDF).
+    // This CANNOT produce a blank page — it's just HTML in a new tab.
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) {
+      showToast('Allow pop-ups for this site to generate the PDF.', 'error');
+      return;
+    }
 
-    wrapper.innerHTML = `
-<div style="display:flex;align-items:center;justify-content:space-between;
-            border-bottom:2px solid #22c55e;padding-bottom:16px;margin-bottom:24px;">
-  <div>
-    <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#111827;">
-      🌍 EarthLens <span style="color:#22c55e;">AI</span> Report
+    win.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EarthLens AI Report — ${dateStr}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.6;color:#111827;background:#fff;padding:40px 48px;max-width:816px;margin:0 auto;}
+    @media print{body{padding:20px 32px;}.no-print{display:none!important;}@page{margin:0.5in;size:letter portrait;}}
+    h2{font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;}
+    .hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #22c55e;padding-bottom:16px;margin-bottom:28px;}
+    .logo{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#111827;} .logo span{color:#22c55e;}
+    .sub{font-size:12px;color:#6b7280;margin-top:3px;}
+    .dt{text-align:right;font-size:11.5px;color:#6b7280;}
+    .sbox{display:flex;align-items:center;gap:28px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:14px;padding:20px 24px;border:1px solid #bbf7d0;margin-bottom:22px;}
+    .sumbox{background:#f9fafb;border-radius:10px;padding:16px;border:1px solid #e5e7eb;font-size:13.5px;color:#374151;line-height:1.7;margin-bottom:22px;}
+    .sec{margin-bottom:22px;}
+    .ftr{border-top:1px solid #e5e7eb;margin-top:28px;padding-top:14px;display:flex;justify-content:space-between;font-size:11px;color:#9ca3af;}
+    .pbtn{display:block;margin:0 auto 28px;padding:12px 36px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.3px;}
+    .pbtn:hover{background:#16a34a;}
+  </style>
+</head>
+<body>
+  <button class="pbtn no-print" onclick="window.print()">⬇ Save as PDF / Print</button>
+  <div class="hdr">
+    <div><div class="logo">🌍 EarthLens <span>AI</span> Report</div><div class="sub">Environmental Intelligence — Powered by Google Gemini</div></div>
+    <div class="dt"><div>${dateStr}</div><div>${timeStr}</div></div>
+  </div>
+  ${imgBlock}
+  <div class="sbox">
+    <div style="flex-shrink:0;">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#d1fae5" stroke-width="10"/>
+        <circle cx="60" cy="60" r="54" fill="none" stroke="${color}" stroke-width="10"
+                stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}"
+                stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        <text x="60" y="57" text-anchor="middle" font-size="26" font-weight="800" fill="#111827" font-family="Segoe UI,Arial,sans-serif">${score}</text>
+        <text x="60" y="73" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Segoe UI,Arial,sans-serif">ECO SCORE</text>
+      </svg>
     </div>
-    <div style="font-size:12px;color:#6b7280;margin-top:3px;">
-      Environmental Intelligence — Powered by Google Gemini
+    <div>
+      <div style="font-size:22px;font-weight:800;color:${color};margin-bottom:4px;">${grade}</div>
+      <div style="font-size:13.5px;color:#374151;max-width:360px;">${desc}</div>
     </div>
   </div>
-  <div style="text-align:right;font-size:11.5px;color:#6b7280;">
-    <div>${dateStr}</div><div>${timeStr}</div>
-  </div>
-</div>
-
-${imgBlock}
-
-<div style="display:flex;align-items:center;gap:28px;
-            background:linear-gradient(135deg,#f0fdf4,#dcfce7);
-            border-radius:14px;padding:20px 24px;border:1px solid #bbf7d0;
-            margin-bottom:22px;">
-  <div style="flex-shrink:0;">
-    <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="54" fill="none" stroke="#d1fae5" stroke-width="10"/>
-      <circle cx="60" cy="60" r="54" fill="none" stroke="${color}" stroke-width="10"
-              stroke-dasharray="${circumference.toFixed(2)}"
-              stroke-dashoffset="${dashOffset.toFixed(2)}"
-              stroke-linecap="round" transform="rotate(-90 60 60)"/>
-      <text x="60" y="57" text-anchor="middle" font-size="26" font-weight="800"
-            fill="#111827" font-family="Segoe UI,Arial,sans-serif">${score}</text>
-      <text x="60" y="73" text-anchor="middle" font-size="10" fill="#6b7280"
-            font-family="Segoe UI,Arial,sans-serif">ECO SCORE</text>
-    </svg>
-  </div>
-  <div>
-    <div style="font-size:22px;font-weight:800;color:${color};margin-bottom:4px;">${grade}</div>
-    <div style="font-size:13.5px;color:#374151;max-width:360px;">${desc}</div>
-  </div>
-</div>
-
-<div style="margin-bottom:22px;">
-  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;">📋 Summary</h2>
-  <div style="background:#f9fafb;border-radius:10px;padding:16px;
-              border:1px solid #e5e7eb;font-size:13.5px;color:#374151;line-height:1.7;">
-    ${summary}
-  </div>
-</div>
-
-<div style="margin-bottom:22px;">
-  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;">🔍 Key Findings</h2>
-  ${findingsHTML}
-</div>
-
-<div style="margin-bottom:22px;">
-  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;">💡 Recommended Actions</h2>
-  ${actionsHTML}
-</div>
-
-${tagsHTML ? `<div style="margin-bottom:22px;">
-  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:10px;">🏷️ Detected Elements</h2>
-  <div>${tagsHTML}</div>
-</div>` : ''}
-
-<div style="border-top:1px solid #e5e7eb;margin-top:28px;padding-top:14px;
-            display:flex;justify-content:space-between;align-items:center;">
-  <span style="font-size:11px;color:#9ca3af;">Generated by EarthLens AI</span>
-  <span style="font-size:11px;color:#9ca3af;">Built with 💚 for Earth Day 2026</span>
-</div>`;
-
-    document.body.appendChild(wrapper);
-
-    // ── Wait for images then capture ─────────────────────────────────
-    const imgs = [...wrapper.querySelectorAll('img')];
-    const imgLoads = imgs.map(img => new Promise(res => {
-      if (img.complete && img.naturalHeight > 0) { res(); }
-      else { img.onload = img.onerror = res; }
-    }));
-
-    Promise.all(imgLoads).then(() => {
-      // Extra tick so browser paints the layout
-      setTimeout(() => {
-        const opt = {
-          margin:      [0.4, 0.4, 0.4, 0.4],
-          filename:    'EarthLens-AI-Report.pdf',
-          image:       { type: 'jpeg', quality: 0.95 },
-          html2canvas: {
-            scale:           2,
-            useCORS:         true,
-            allowTaint:      true,
-            backgroundColor: '#ffffff',
-            logging:         false,
-            windowWidth:     816,
-            width:           816,
-            scrollX:         0,
-            scrollY:         0,
-            x:               0,
-            y:               0
-          },
-          jsPDF:     { unit: 'in', format: 'letter', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] }
-        };
-
-        html2pdf().set(opt).from(wrapper).save()
-          .then(() => {
-            showToast('PDF downloaded! 📄', 'success');
-            document.body.removeChild(wrapper);
-          })
-          .catch(err => {
-            showToast('PDF failed: ' + err.message, 'error');
-            if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
-          });
-      }, 100);
-    });
+  <div class="sec"><h2>📋 Summary</h2><div class="sumbox">${summary}</div></div>
+  <div class="sec"><h2>🔍 Key Findings</h2>${findingsHTML}</div>
+  <div class="sec"><h2>💡 Recommended Actions</h2>${actionsHTML}</div>
+  ${tagsHTML ? `<div class="sec"><h2>🏷️ Detected Elements</h2><div>${tagsHTML}</div></div>` : ''}
+  <div class="ftr"><span>Generated by EarthLens AI</span><span>Built with 💚 for Earth Day 2026</span></div>
+</body>
+</html>`);
+    win.document.close();
+    showToast('Report ready — click "Save as PDF" in the new tab! 📄', 'success');
   }
 
   return { init };
