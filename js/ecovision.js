@@ -397,7 +397,12 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
     if (statEl) statEl.textContent = analysisCount;
 
     // Click to upload
-    uploadZone.addEventListener('click', () => fileInput.click());
+    uploadZone.addEventListener('click', (e) => {
+      // Prevent bubbling loop if clicking fileInput directly
+      if (e.target !== fileInput) {
+        fileInput.click();
+      }
+    });
     fileInput.addEventListener('change', (e) => loadImageFromFile(e.target.files[0]));
 
     // Drag & Drop
@@ -667,17 +672,10 @@ ${tagsHTML ? `<div style="margin-bottom:22px;">
           })
           .catch(err => {
             showToast('PDF failed: ' + err.message, 'error');
-            document.body.removeChild(iframe);
+            if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
           });
-      });
-    }
-
-    // Give the iframe a tick to finish layout before capturing
-    iframe.onload = doCapture;
-    // Fallback: if onload already fired (same-origin srcdoc), call directly
-    if (iframe.contentDocument.readyState === 'complete') {
-      setTimeout(doCapture, 100);
-    }
+      }, 100);
+    });
   }
 
   return { init };
