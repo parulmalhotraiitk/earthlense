@@ -510,19 +510,19 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
     const imgBlock = imgSrc
       ? `<div style="text-align:center;margin-bottom:24px;">
            <img src="${imgSrc}"
-                style="max-width:100%;max-height:280px;border-radius:12px;
+                style="max-width:100%;max-height:260px;border-radius:12px;
                        border:2px solid #bbf7d0;object-fit:cover;
-                       box-shadow:0 4px 16px rgba(34,197,94,0.15);"
+                       display:block;margin:0 auto;"
                 alt="Analysed image"/>
          </div>`
       : '';
 
-    const liStyle = color => `display:flex;align-items:flex-start;gap:12px;
+    const liStyle = c => `display:flex;align-items:flex-start;gap:12px;
                               border-radius:8px;padding:12px 14px;
-                              border-left:3px solid ${color};margin-bottom:8px;
-                              background:${color === '#22c55e' ? '#f0fdf4' : '#fffbeb'};`;
+                              border-left:3px solid ${c};margin-bottom:8px;
+                              background:${c === '#22c55e' ? '#f0fdf4' : '#fffbeb'};`;
 
-    const numStyle = c => `color:${c};font-weight:700;font-size:13px;min-width:20px;`;
+    const numStyle = c => `color:${c};font-weight:700;font-size:13px;min-width:20px;flex-shrink:0;`;
     const txtStyle = `color:#1e3a2e;font-size:13.5px;line-height:1.5;`;
 
     const findingsHTML = findings.length
@@ -543,20 +543,30 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
                                     font-weight:600;margin:3px;">${t}</span>`).join('')
       : '';
 
-    // ── Full report HTML ────────────────────────────────────────────
-    const reportHTML = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#111827;
-       padding:32px 36px;font-size:14px;line-height:1.6;}
-  h2{font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;}
-  .sec{margin-bottom:22px;}
-</style></head><body>
+    // ── Build the report as a real DIV in the main document ─────────
+    // Critically: html2canvas only works reliably on same-document elements.
+    // We position the wrapper off-screen (NOT visibility:hidden or display:none).
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = [
+      'position:fixed',
+      'top:0',
+      'left:-1050px',   // off-screen to the left
+      'width:816px',
+      'background:#ffffff',
+      'color:#111827',
+      'font-family:Segoe UI,Arial,sans-serif',
+      'font-size:14px',
+      'line-height:1.6',
+      'padding:32px 36px',
+      'box-sizing:border-box',
+      'z-index:99999'
+    ].join(';');
 
+    wrapper.innerHTML = `
 <div style="display:flex;align-items:center;justify-content:space-between;
             border-bottom:2px solid #22c55e;padding-bottom:16px;margin-bottom:24px;">
   <div>
-    <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#111827;">
       🌍 EarthLens <span style="color:#22c55e;">AI</span> Report
     </div>
     <div style="font-size:12px;color:#6b7280;margin-top:3px;">
@@ -570,9 +580,10 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
 
 ${imgBlock}
 
-<div class="sec" style="display:flex;align-items:center;gap:28px;
-                         background:linear-gradient(135deg,#f0fdf4,#dcfce7);
-                         border-radius:14px;padding:20px 24px;border:1px solid #bbf7d0;">
+<div style="display:flex;align-items:center;gap:28px;
+            background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+            border-radius:14px;padding:20px 24px;border:1px solid #bbf7d0;
+            margin-bottom:22px;">
   <div style="flex-shrink:0;">
     <svg width="120" height="120" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="54" fill="none" stroke="#d1fae5" stroke-width="10"/>
@@ -581,9 +592,9 @@ ${imgBlock}
               stroke-dashoffset="${dashOffset.toFixed(2)}"
               stroke-linecap="round" transform="rotate(-90 60 60)"/>
       <text x="60" y="57" text-anchor="middle" font-size="26" font-weight="800"
-            fill="#111827" font-family="'Segoe UI',Arial,sans-serif">${score}</text>
+            fill="#111827" font-family="Segoe UI,Arial,sans-serif">${score}</text>
       <text x="60" y="73" text-anchor="middle" font-size="10" fill="#6b7280"
-            font-family="'Segoe UI',Arial,sans-serif">ECO SCORE</text>
+            font-family="Segoe UI,Arial,sans-serif">ECO SCORE</text>
     </svg>
   </div>
   <div>
@@ -592,73 +603,81 @@ ${imgBlock}
   </div>
 </div>
 
-<div class="sec" style="margin-top:22px;">
-  <h2>📋 Summary</h2>
+<div style="margin-bottom:22px;">
+  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;">📋 Summary</h2>
   <div style="background:#f9fafb;border-radius:10px;padding:16px;
               border:1px solid #e5e7eb;font-size:13.5px;color:#374151;line-height:1.7;">
     ${summary}
   </div>
 </div>
 
-<div class="sec"><h2>🔍 Key Findings</h2>${findingsHTML}</div>
+<div style="margin-bottom:22px;">
+  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;">🔍 Key Findings</h2>
+  ${findingsHTML}
+</div>
 
-<div class="sec"><h2>💡 Recommended Actions</h2>${actionsHTML}</div>
+<div style="margin-bottom:22px;">
+  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;">💡 Recommended Actions</h2>
+  ${actionsHTML}
+</div>
 
-${tagsHTML ? `<div class="sec"><h2>🏷️ Detected Elements</h2>
-<div style="margin-top:6px;">${tagsHTML}</div></div>` : ''}
+${tagsHTML ? `<div style="margin-bottom:22px;">
+  <h2 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:10px;">🏷️ Detected Elements</h2>
+  <div>${tagsHTML}</div>
+</div>` : ''}
 
 <div style="border-top:1px solid #e5e7eb;margin-top:28px;padding-top:14px;
             display:flex;justify-content:space-between;align-items:center;">
   <span style="font-size:11px;color:#9ca3af;">Generated by EarthLens AI</span>
   <span style="font-size:11px;color:#9ca3af;">Built with 💚 for Earth Day 2026</span>
-</div>
+</div>`;
 
-</body></html>`;
+    document.body.appendChild(wrapper);
 
-    // ── Render via hidden iframe ─────────────────────────────────────
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:816px;height:1px;border:none;visibility:hidden;';
-    document.body.appendChild(iframe);
-
-    iframe.contentDocument.open();
-    iframe.contentDocument.write(reportHTML);
-    iframe.contentDocument.close();
-
-    const reportEl = iframe.contentDocument.body;
-
-    // Wait for the embedded image (if any) to decode
-    const imgs = [...iframe.contentDocument.querySelectorAll('img')];
+    // ── Wait for images then capture ─────────────────────────────────
+    const imgs = [...wrapper.querySelectorAll('img')];
     const imgLoads = imgs.map(img => new Promise(res => {
-      if (img.complete) { res(); } else { img.onload = img.onerror = res; }
+      if (img.complete && img.naturalHeight > 0) { res(); }
+      else { img.onload = img.onerror = res; }
     }));
 
     Promise.all(imgLoads).then(() => {
-      const opt = {
-        margin:      [0.4, 0.4, 0.4, 0.4],
-        filename:    'EarthLens-AI-Report.pdf',
-        image:       { type: 'jpeg', quality: 0.96 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: '#ffffff',
-          logging: false,
-          windowWidth: 816
-        },
-        jsPDF:     { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css'] }
-      };
+      // Extra tick so browser paints the layout
+      setTimeout(() => {
+        const opt = {
+          margin:      [0.4, 0.4, 0.4, 0.4],
+          filename:    'EarthLens-AI-Report.pdf',
+          image:       { type: 'jpeg', quality: 0.95 },
+          html2canvas: {
+            scale:           2,
+            useCORS:         true,
+            allowTaint:      true,
+            backgroundColor: '#ffffff',
+            logging:         false,
+            windowWidth:     816
+          },
+          jsPDF:     { unit: 'in', format: 'letter', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        };
 
-      html2pdf().set(opt).from(reportEl).save()
-        .then(() => {
-          showToast('PDF downloaded! 📄', 'success');
-          document.body.removeChild(iframe);
-        })
-        .catch(err => {
-          showToast('PDF failed: ' + err.message, 'error');
-          document.body.removeChild(iframe);
-        });
-    });
+        html2pdf().set(opt).from(wrapper).save()
+          .then(() => {
+            showToast('PDF downloaded! 📄', 'success');
+            document.body.removeChild(wrapper);
+          })
+          .catch(err => {
+            showToast('PDF failed: ' + err.message, 'error');
+            document.body.removeChild(iframe);
+          });
+      });
+    }
+
+    // Give the iframe a tick to finish layout before capturing
+    iframe.onload = doCapture;
+    // Fallback: if onload already fired (same-origin srcdoc), call directly
+    if (iframe.contentDocument.readyState === 'complete') {
+      setTimeout(doCapture, 100);
+    }
   }
 
   return { init };
