@@ -457,8 +457,10 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
       const text = `🌍 EarthLens AI Report 🌍\n\nEco Score: ${score}/100 (${grade})\n\nSummary:\n${summary}\n\nKey Findings:${findings}\n\nRecommended Actions:${actions}\n\n#EarthDay2026 #EarthLensAI`;
       
       if (navigator.share) {
-        navigator.share({ title: 'EarthLens AI Report', text: text }).catch(() => {
-          navigator.clipboard.writeText(text).then(() => showToast('Full report copied to clipboard!', 'success'));
+        navigator.share({ title: 'EarthLens AI Report', text: text, url: window.location.href }).catch((err) => {
+          if (err.name !== 'AbortError') {
+            navigator.clipboard.writeText(text).then(() => showToast('Full report copied to clipboard!', 'success'));
+          }
         });
       } else {
         navigator.clipboard.writeText(text).then(() => showToast('Full report copied to clipboard!', 'success'));
@@ -549,13 +551,14 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
       : '';
 
     // ── Build the report as a real DIV in the main document ─────────
-    // Critically: html2canvas only works reliably on same-document elements.
-    // We position the wrapper off-screen (NOT visibility:hidden or display:none).
+    // We position the wrapper absolutely behind the content so html2canvas captures it properly
+    // without it shifting out of the capture viewport.
     const wrapper = document.createElement('div');
     wrapper.style.cssText = [
-      'position:fixed',
+      'position:absolute',
       'top:0',
-      'left:-1050px',   // off-screen to the left
+      'left:0',
+      'z-index:-9999',
       'width:816px',
       'background:#ffffff',
       'color:#111827',
@@ -563,8 +566,7 @@ Return your analysis as a valid JSON object (no markdown, no code fences) with t
       'font-size:14px',
       'line-height:1.6',
       'padding:32px 36px',
-      'box-sizing:border-box',
-      'z-index:99999'
+      'box-sizing:border-box'
     ].join(';');
 
     wrapper.innerHTML = `
